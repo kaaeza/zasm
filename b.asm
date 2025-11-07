@@ -1,3 +1,0 @@
-	LD B, 01h
-	DEC B
-	HALT
