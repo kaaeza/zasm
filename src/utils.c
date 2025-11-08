@@ -10,31 +10,31 @@
 #include <ctype.h>
 #include "utils.h"
 
-bool saveState(const uint8_t *memory, const z80 *cpu) {
+bool saveState(const uint8_t *m, const z80 *c) {
     FILE *file = fopen("save.bin", "wb");
     if(!file) {
         perror("Error while opening save file");
         return false;
     }
 
-    fwrite(memory, sizeof(uint8_t), 0x10000, file);
+    fwrite(m, sizeof(uint8_t), 0x10000, file);
     
-    fwrite(cpu, sizeof(z80), 1, file);
+    fwrite(c, sizeof(z80), 1, file);
     
     fclose(file);
 
     return true;
 }
 
-bool loadState(uint8_t *memory, z80 *cpu) {
+bool loadState(uint8_t *m, z80 *c) {
     FILE *file = fopen("save.bin", "rb");
     if(!file) {
         perror("Error while opening save file");
         return false;
     }
 
-    fread(memory, sizeof(uint8_t), 0x10000, file);
-    fread(cpu, sizeof(z80), 1, file);
+    fread(m, sizeof(uint8_t), 0x10000, file);
+    fread(c, sizeof(z80), 1, file);
     
     fclose(file);
     return true;
