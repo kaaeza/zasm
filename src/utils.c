@@ -1,22 +1,35 @@
 #define _POSIX_C_SOURCE 200809L
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "utils.h"
 
 char *getSaveFilePath() {
     static char path[4096];
     char exePath[4096];
+    #ifdef _WIN32
+    DWORD len = GetModuleFileNameA(NULL, exePath, sizeof(exePath));
+    if (len == 0) {
+        perror("GetModuleFileNameA");
+        return NULL;
+    }
+    #else
     ssize_t len = readlink("/proc/self/exe", exePath, sizeof(exePath) - 1);
-
     if (len == -1) {
         perror("readlink");
         return NULL;
     }
+    #endif
+
 
     exePath[len] = '\0';
 
