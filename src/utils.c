@@ -1,9 +1,3 @@
-/// @file utils.c
-/// @brief Implements utility functions for emulator state management and help display.
-///
-/// This file defines the implementation of functions declared in utils.h,
-/// including saving/loading the emulator state to a binary file and printing
-/// command-line usage information.
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -82,13 +76,12 @@ bool loadState(uint8_t *m, z80 *c) {
 
 void printHelp() {
     printf("Usage: zasm [OPTIONS]\n");
-    printf("\nGestisce l'emulatore Z80.\n\n");
     printf("  -f <file>           The file to emulate\n");
     printf("  -r                  Resets the state of the CPU and memory\n");
     printf("  -c, --view-cpu      Shows the CPU state\n");
     printf("  -m, --view-memory   Shows the memory state\n");
     printf("  --view-state        Shows both the CPU and memory state\n");
-    printf("  -h, --help          Mostra questo messaggio di aiuto\n");
+    printf("  -h, --help          Shows this message\n");
     
     return;
 }
