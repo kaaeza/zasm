@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -17,7 +16,7 @@ bool debugActive;
 int main(int argc, char *argv[]) {
     // loads the previously saved memory and cpu
     loadState(memory, &cpu);
-    
+
     // ONLY RESET THE Program Counter every time zasm runs
     cpu.PC = 0;
     // flag switch
@@ -79,7 +78,7 @@ int main(int argc, char *argv[]) {
         case 'h':
             printHelp();
             return 0;
-        
+
         case '?':  // flag error
             if (optopt == 'f') {
                 fprintf(stderr, "Error: the option -f requires an argument <filename>.\n");

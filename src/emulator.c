@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include "z80.h"
 #include "utils.h"
 #include "lexer.h"
@@ -41,11 +40,11 @@ uint8_t *handleArg(char *arg) {
             return &memory[val];
         } else {
             a = getReg8Bit(arg[0]);
-            
+
             return &memory[*a];
         }
     }
-    
+
     if(ends_with(arg, 'h')) {
         immNumber = (uint8_t) strtol(arg, NULL, 16);
         return &immNumber;
@@ -73,11 +72,16 @@ void execFile(Instruction instructions[]) {
             dest = handleArg(currentInstruction.arg1);
             src = handleArg(currentInstruction.arg2);
 
-            bool isDestMemory = (dest >= memory) && (dest < memory + 0x10000);
-            if(isDestMemory) {
-                fprintf(stderr, "Line %04X: [ERROR] Unrecognized instruction/syntax. 'LD (<arg>), <arg>'\n", cpu.PC);
-                exit(1);
-            }
+            /* TODO: learn if (20h) is legit or no
+             * For now assume it's legit 08/11/2025
+             * If not then check if the address is found by getting it from the register or directly.
+             *
+             * bool isDestMemory = (dest >= memory) && (dest < memory + 0x10000);
+             * if (isDestMemory) {
+             *      fprintf(stderr, "Line %04X: [ERROR] Unrecognized instruction/syntax. 'LD (<arg>), <arg>'\n", cpu.PC);
+             *     exit(1);
+             * }
+             */
 
             *dest = *src;
             break;
@@ -89,31 +93,115 @@ void execFile(Instruction instructions[]) {
 
         case IST_INC: {
             src = handleArg(currentInstruction.arg1);
+            cpu.F.HF = (((*src) & 0x0F) + 1 ) > 0x0F;
+            cpu.F.PF = ((*src) == 0x7F);
+
             (*src)++;
-            cpu.F.ZF = (*src == 0); /* Set Zero flag if result is 0 */
+
+            // FLAGS
+            cpu.F.ZF = ((*src) == 0); // zero
+            cpu.F.NF = 0;
+            cpu.F.SF = ((*src) & 0x80) != 0; // bit 7
             break;
         }
 
         case IST_DEC: {
             src = handleArg(currentInstruction.arg1);
+            cpu.F.HF = (((*src) & 0x0F) + 1 ) > 0x0F;
+            cpu.F.PF = ((*src) == 0x7F);
             (*src)--;
-            cpu.F.ZF = (*src == 0);
+
+            // FLAGS
+            cpu.F.ZF = ((*src) == 0); // zero
+            cpu.F.NF = 1;
+            cpu.F.SF = ((*src) & 0x80) != 0; // bit 7
             break;
         }
 
         case IST_ADD: {
-            src = handleArg(currentInstruction.arg1);
+            dest = handleArg(currentInstruction.arg1);
+            src = handleArg(currentInstruction.arg2);
 
-            cpu.A += *src;
-            cpu.F.ZF = (cpu.A == 0);
+            if(dest != &cpu.A) {
+                fprintf(stderr, "Line %04X: [ERROR] ADD first argument must be A", cpu.PC);
+                exit(1);
+            }
+
+            uint16_t result = (uint16_t)cpu.A + (uint16_t)(*src);
+
+            cpu.F.HF = ((cpu.A & 0x0F) + ((*src) & 0x0F)) > 0x0F;
+            cpu.F.PF = (~(cpu.A ^ *src) & (cpu.A ^ result) & 0x80) != 0;
+
+
+            *dest = cpu.A + *src;
+
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0); // zero
+            cpu.F.CF = (result > 0xFF); // carry
+            cpu.F.NF = 0;
+            cpu.F.SF = (cpu.A & 0x80) != 0; // bit 7
             break;
         }
-        
+
         case IST_SUB: {
             src = handleArg(currentInstruction.arg1);
-            
+            uint16_t result = (uint16_t)cpu.A + (uint16_t)(*src);
+
+            cpu.F.CF = (cpu.A < *src);
+
             cpu.A -= *src;
-            cpu.F.ZF = (cpu.A == 0);
+            cpu.F.HF = ((cpu.A & 0x0F) + ((*src) & 0x0F)) > 0x0F;
+            cpu.F.PF = (~(cpu.A ^ *src) & (cpu.A ^ result) & 0x80) != 0;
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0); // zero
+            cpu.F.NF = 1;
+            cpu.F.SF = (cpu.A & 0x80) != 0; // bit 7
+            break;
+        }
+
+        case IST_ADC: {
+            dest = handleArg(currentInstruction.arg1);
+            src = handleArg(currentInstruction.arg2);
+
+            if(dest != &cpu.A) {
+                fprintf(stderr, "Line %04X: [ERROR] ADC first argument must be A", cpu.PC);
+                exit(1);
+            }
+
+            cpu.F.HF = ((cpu.A & 0x0F) + (*src & 0x0F) + cpu.F.CF) > 0x0F;
+            cpu.F.PF = (~(cpu.A ^ *src) & (cpu.A ^ (cpu.A + *src + cpu.F.CF)) & 0x80) != 0;
+
+            uint16_t result = (uint16_t)cpu.A + (uint16_t)(*src) + cpu.F.CF;
+
+            *dest = cpu.A + (*src) + cpu.F.CF;
+
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0); // zero
+            cpu.F.CF = (result > 0xFF); // carry
+            cpu.F.NF = 0;
+            cpu.F.SF = (cpu.A & 0x80) != 0; // bit 7
+            break;
+        }
+
+        case IST_SBC: {
+            dest = handleArg(currentInstruction.arg1);
+            src = handleArg(currentInstruction.arg2);
+
+            if(dest != &cpu.A) {
+                fprintf(stderr, "Line %04X: [ERROR] ADC first argument must be A", cpu.PC);
+                exit(1);
+            }
+
+            cpu.F.HF = ( (cpu.A & 0x0F) < ((*src & 0x0F) + cpu.F.CF) );
+            cpu.F.PF = ((cpu.A ^ *src) & (cpu.A ^ (cpu.A - *src - cpu.F.CF)) & 0x80) != 0;
+            cpu.F.CF = (cpu.A < (*src + cpu.F.CF)); // carry
+
+            *dest = cpu.A - (*src) - cpu.F.CF;
+
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0); // zero
+            cpu.F.NF = 1;
+            cpu.F.SF = (cpu.A & 0x80) != 0; // bit 7
             break;
         }
 
@@ -124,30 +212,61 @@ void execFile(Instruction instructions[]) {
         case IST_CP: {
             src = handleArg(currentInstruction.arg1);
 
-            cpu.F.ZF = !(cpu.A == *src);
+            cpu.F.ZF = ((cpu.A - *src) == 0);
+            cpu.F.CF = (cpu.A < *src);
+            cpu.F.NF = 1;
+            cpu.F.SF = ((uint8_t)(cpu.A - *src) & 0x80) != 0;
+            cpu.F.HF = (cpu.A & 0x0F) < (*src & 0x0F);
+            cpu.F.PF = ((cpu.A ^ *src) & (cpu.A ^ (cpu.A - *src)) & 0x80) != 0;
+
             break;
-        }
+         }
 
         case IST_AND: {
             src = handleArg(currentInstruction.arg1);
             cpu.A &= *src;
+
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0);
+            cpu.F.SF = (cpu.A & 0x80) != 0;
+            cpu.F.HF = 1;        // AND imposta sempre il half-carry
+            cpu.F.PF = __builtin_parity(cpu.A) == 0; // parity even
+            cpu.F.NF = 0;
+            cpu.F.CF = 0;
+
             break;
-        }
+         }
 
         case IST_OR: {
             src = handleArg(currentInstruction.arg1);
-
             cpu.A |= *src;
+
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0);
+            cpu.F.SF = (cpu.A & 0x80) != 0;
+            cpu.F.HF = 0;
+            cpu.F.PF = __builtin_parity(cpu.A) == 0; // parity even
+            cpu.F.NF = 0;
+            cpu.F.CF = 0;
+
             break;
-        }
+         }
 
         case IST_XOR: {
             src = handleArg(currentInstruction.arg1);
-
             cpu.A ^= *src;
+
+            // FLAGS
+            cpu.F.ZF = (cpu.A == 0);
+            cpu.F.SF = (cpu.A & 0x80) != 0;
+            cpu.F.HF = 0;
+            cpu.F.PF = __builtin_parity(cpu.A) == 0; // parity even
+            cpu.F.NF = 0;
+            cpu.F.CF = 0;
+
             break;
-        }
-        
+         }
+
         /* ---------------------------------------
          * JUMP GROUP
          * --------------------------------------- */
@@ -198,7 +317,7 @@ void execFile(Instruction instructions[]) {
                 cpu.PC--;
             }
             break;
-        }
+         }
 
         case IST_JR: {
             uint16_t pcJump = 0;
@@ -260,18 +379,21 @@ void execFile(Instruction instructions[]) {
 
             break;
         }
+
         /* ---------------------------------------
          * OTHER INSTRUCTIONS
          * --------------------------------------- */
 
-        case IST_NOP:
+        case IST_NOP: {
             break;
+        }
 
-        case IST_HALT:
+        case IST_HALT: {
             interrupted = true;
             // prevent the Program counter to be +1 and considers HALT the last instruction
             cpu.PC--;
             break;
+        }
 
         case IST_ERR: {
             fprintf(stderr, "Line %04X: [ERROR] Unrecognized instruction/syntax.\n", cpu.PC);
@@ -280,9 +402,8 @@ void execFile(Instruction instructions[]) {
 
         default:
             break;
-        }
 
-        
+        }
         if (debugActive) {
             printf("[DEBUG]: Executed %s\n", instTypeToString(currentInstruction.instType));
         }

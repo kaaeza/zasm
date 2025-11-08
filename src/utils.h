@@ -50,16 +50,21 @@ bool ends_with(char str[], const char c);
 
 // DEBUG FUNCTIONS
 
-/// @brief 
-/// @param type 
-/// @return 
+/// @brief
+/// @param type
+/// @return
 char *instTypeToString(InstructionType type);
 
 /// @brief Strips the parenthesis from a string
-/// @param str 
+/// @param str
 void stripParenthesis(char *str);
 
 /// @brief Returns the absolute path of the save file
-/// @return The absolute path of the save file 
+/// @return The absolute path of the save file
 char *getSaveFilePath();
+
+/// @brief Computes the parity of a byte (1 if even, 0 if odd)
+/// @param v The byte to compute parity for
+/// @return 1 if the number of set bits is even, 0 if odd
+int parity8(uint8_t v);
 #endif

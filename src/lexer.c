@@ -24,7 +24,11 @@ InstructionType handleInstType(char *instType) {
         return IST_DEC;
     } else if(strcmp(instType, "SUB") == 0) {
         return IST_SUB;
-    } else if(strcmp(instType, "AND") == 0) {   
+    } else if(strcmp(instType, "ADC") == 0) {
+        return IST_ADC;
+    } else if(strcmp(instType, "SBC") == 0) {
+        return IST_SBC;
+    } else if(strcmp(instType, "AND") == 0) {
         return IST_AND;
     } else if(strcmp(instType, "XOR") == 0) {
         return IST_XOR;
@@ -36,6 +40,8 @@ InstructionType handleInstType(char *instType) {
         return IST_JP;
     } else if(strcmp(instType, "JR") == 0) {
         return IST_JR;
+    } else if(strcmp(instType, "CP") == 0) {
+        return IST_CP;
     } else {
         return IST_ERR;
     }
@@ -79,11 +85,11 @@ Instruction parseLine(char line[], uint16_t IC) {
 
 void loadFile(const char *filename, Instruction instructions[]) {
     FILE * src = fopen(filename, "rt");
-    
+
     if(!src) return;
 
     char buffer[8192];
-    
+
     uint16_t istCounter = 0;
     while(fgets(buffer, sizeof(buffer), src) != NULL) {
         instructions[istCounter] = parseLine(buffer, istCounter);

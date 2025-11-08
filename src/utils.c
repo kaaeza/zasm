@@ -50,9 +50,9 @@ bool saveState(const uint8_t *m, const z80 *c) {
     }
 
     fwrite(m, sizeof(uint8_t), 0x10000, file);
-    
+
     fwrite(c, sizeof(z80), 1, file);
-    
+
     fclose(file);
 
     return true;
@@ -68,7 +68,7 @@ bool loadState(uint8_t *m, z80 *c) {
 
     fread(m, sizeof(uint8_t), 0x10000, file);
     fread(c, sizeof(z80), 1, file);
-    
+
     fclose(file);
     return true;
 }
@@ -82,7 +82,7 @@ void printHelp() {
     printf("  -m, --view-memory   Shows the memory state\n");
     printf("  --view-state        Shows both the CPU and memory state\n");
     printf("  -h, --help          Shows this message\n");
-    
+
     return;
 }
 
@@ -185,7 +185,7 @@ bool ends_with(char str[], const char c) {
 	pos = strlen(str);
 
 	if(str[pos-1] == c) return true;
-	
+
 	return false;
 }
 
@@ -220,4 +220,11 @@ void stripParenthesis(char *str) {
     }
 
     *dst = '\0';
+}
+
+int parity8(uint8_t v) {
+    v ^= v >> 4;
+    v ^= v >> 2;
+    v ^= v >> 1;
+    return (~v) & 1;
 }

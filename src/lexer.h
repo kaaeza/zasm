@@ -16,13 +16,15 @@ typedef enum {
     IST_CP,
     IST_INC,
     IST_DEC,
+    IST_ADC,
+    IST_SBC,
     // Jump Group
     IST_JP,
     IST_JR,
     IST_DJNZ,
     // General Purpose
     IST_HALT,
-    IST_NOP, 
+    IST_NOP,
     IST_ERR
 } InstructionType;
 

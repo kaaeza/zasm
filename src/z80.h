@@ -16,7 +16,7 @@ typedef struct {
     bool HF;
     bool XF;
     bool PF;
-    bool NF;
+    bool NF; // adds = 0, subs = 1
     bool CF;
 } flagsRegister;
 
@@ -31,7 +31,7 @@ typedef struct {
     flagsRegister F; ///< Flags register
     uint8_t H;
     uint8_t L;
-    
+
     // 16 bit
     uint16_t PC; // program counter
     uint16_t SP; // stack pointer
