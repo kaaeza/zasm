@@ -89,7 +89,7 @@ zasm -h | zasm --help
 | `AND`       | Logical AND with register A |
 | `OR`        | Logical OR with register A |
 | `XOR`       | Logical XOR with register A |
-| `CP`        | Compare a value with register A (sets flags) |
+| `CP`        | Compare a value with register A |
 | `INC`       | Increment a register or memory value by 1 |
 | `DEC`       | Decrement a register or memory value by 1 |
 | `JP`        | Jump to an absolute address (can be conditional) |
