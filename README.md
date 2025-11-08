@@ -78,3 +78,23 @@ For more info you can use the help flag:
 ```bash
 zasm -h | zasm --help
 ```
+
+## Supported Instructions
+
+| Instruction | Description |
+|-------------|-------------|
+| `LD`        | Load a value into a register or memory |
+| `ADD`       | Add a value to register A |
+| `SUB`       | Subtract a value from register A |
+| `AND`       | Logical AND with register A |
+| `OR`        | Logical OR with register A |
+| `XOR`       | Logical XOR with register A |
+| `CP`        | Compare a value with register A (sets flags) |
+| `INC`       | Increment a register or memory value by 1 |
+| `DEC`       | Decrement a register or memory value by 1 |
+| `JP`        | Jump to an absolute address (can be conditional) |
+| `JR`        | Jump relative to the current PC (can be conditional) |
+| `DJNZ`      | Decrement register B and jump if not zero |
+| `HALT`      | Stop program execution |
+| `NOP`       | No operation (does nothing) |
+| `ERR`       | Represents an unrecognized instruction or syntax error |
