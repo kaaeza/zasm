@@ -4,14 +4,52 @@
 /// This file defines the implementation of functions declared in utils.h,
 /// including saving/loading the emulator state to a binary file and printing
 /// command-line usage information.
+#define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "utils.h"
 
+char *getSaveFilePath() {
+    static char path[4096];
+    char exePath[4096];
+    ssize_t len = readlink("/proc/self/exe", exePath, sizeof(exePath) - 1);
+
+    if (len == -1) {
+        perror("readlink");
+        return NULL;
+    }
+
+    exePath[len] = '\0';
+
+    // Remove exe name, keep only directory
+    char *lastSlash = strrchr(exePath, '/');
+    if (lastSlash) {
+        *lastSlash = '\0';
+    }
+
+    // Build the absolute path safely
+    size_t exeLen = strlen(exePath);
+    const char *saveFile = "/save.bin";
+
+    if (exeLen + strlen(saveFile) + 1 > sizeof(path)) {
+        fprintf(stderr, "Error: executable path too long for save file.\n");
+        return NULL;
+    }
+
+    strcpy(path, exePath);
+    strcat(path, saveFile);
+
+    return path;
+}
+
 bool saveState(const uint8_t *m, const z80 *c) {
-    FILE *file = fopen("save.bin", "wb");
+    char *savePath = getSaveFilePath();
+    FILE *file = fopen(savePath, "wb");
     if(!file) {
         perror("Error while opening save file");
         return false;
@@ -27,7 +65,8 @@ bool saveState(const uint8_t *m, const z80 *c) {
 }
 
 bool loadState(uint8_t *m, z80 *c) {
-    FILE *file = fopen("save.bin", "rb");
+    char *savePath = getSaveFilePath();
+    FILE *file = fopen(savePath, "rb");
     if(!file) {
         perror("Error while opening save file");
         return false;

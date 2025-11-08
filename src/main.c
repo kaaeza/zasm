@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
             strcpy(filename, optarg);
 
             if(!fileExist(filename)) {
-                printf("Error: File \"%s\" doesn't exist", filename);
+                printf("Error: File \"%s\" doesn't exist\n", filename);
                 return 1;
             }
             break;

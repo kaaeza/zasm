@@ -58,4 +58,8 @@ char *instTypeToString(InstructionType type);
 /// @brief Strips the parenthesis from a string
 /// @param str 
 void stripParenthesis(char *str);
+
+/// @brief Returns the absolute path of the save file
+/// @return The absolute path of the save file 
+char *getSaveFilePath();
 #endif
