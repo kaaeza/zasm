@@ -117,17 +117,17 @@ void printMemory() {
 
         if (allZero) continue;
 
-        // Stampa indirizzo
+        // print address
         printf("%04X: ", addr);
 
-        // Stampa byte in esadecimale
+        // print byte in hex
         for (int i = 0; i < 16; i++) {
             printf("%02X ", memory[addr + i]);
         }
 
         printf(" ");
 
-        // Stampa la parte ASCII
+        // print the line in ASCII char
         for (int i = 0; i < 16; i++) {
             uint8_t c = memory[addr + i];
             printf("%c", isprint(c) ? c : '.');
@@ -173,4 +173,19 @@ char *instTypeToString(InstructionType type) {
         case IST_ERR:   return "IST_ERR";
         default:        return "UNKNOWN_INSTRUCTION";
     }
+}
+
+void stripParenthesis(char *str) {
+    char *src = str;  // read
+    char *dst = str;  // write
+
+    while (*src) {
+        if (*src != '(' && *src != ')') {
+            *dst = *src;  // copies only if not parenthesis
+            dst++;
+        }
+        src++;
+    }
+
+    *dst = '\0';
 }

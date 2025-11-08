@@ -54,4 +54,8 @@ bool ends_with(char str[], const char c);
 /// @param type 
 /// @return 
 char *instTypeToString(InstructionType type);
+
+/// @brief Strips the parenthesis from a string
+/// @param str 
+void stripParenthesis(char *str);
 #endif

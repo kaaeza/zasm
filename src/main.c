@@ -17,6 +17,9 @@ bool debugActive;
 int main(int argc, char *argv[]) {
     // loads the previously saved memory and cpu
     loadState(memory, &cpu);
+    
+    // ONLY RESET THE Program Counter every time zasm runs
+    cpu.PC = 0;
     // flag switch
     int opt;
     // file to open (if there is one)

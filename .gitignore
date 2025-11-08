@@ -1,5 +1,10 @@
+# Directories
 bin/
 build/
 .vscode/
+
+# Files
+_*
+*.o
 *_test.asm
 *.bin
