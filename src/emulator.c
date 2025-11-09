@@ -383,6 +383,31 @@ void execFile(Instruction instructions[]) {
         /* ---------------------------------------
          * OTHER INSTRUCTIONS
          * --------------------------------------- */
+        case IST_CCF: {
+            cpu.F.HF = cpu.F.CF;
+            cpu.F.CF = !cpu.F.CF;
+            cpu.F.NF = 0;
+            break;
+        }
+
+        case IST_NEG: {
+            cpu.F.HF = ((cpu.A & 0x0F) != 0);
+            cpu.F.PF = (cpu.A == 0x80);
+            cpu.F.CF = (cpu.A != 0);
+            cpu.A = 0 - cpu.A;
+
+            cpu.F.NF = 1;
+            cpu.F.ZF = (cpu.A == 0);
+            cpu.F.SF = ((cpu.A & 0x80) != 0);
+            break;
+        }
+
+        case IST_SCF: {
+            cpu.F.CF = 1;
+            cpu.F.HF = 0;
+            cpu.F.NF = 0;
+            break;
+        }
 
         case IST_NOP: {
             break;

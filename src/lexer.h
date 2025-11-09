@@ -25,6 +25,9 @@ typedef enum {
     // General Purpose
     IST_HALT,
     IST_NOP,
+    IST_CCF,
+    IST_SCF,
+    IST_NEG,
     IST_ERR
 } InstructionType;
 

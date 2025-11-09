@@ -42,6 +42,12 @@ InstructionType handleInstType(char *instType) {
         return IST_JR;
     } else if(strcmp(instType, "CP") == 0) {
         return IST_CP;
+    } else if(strcmp(instType, "CCF") == 0) {
+        return IST_CCF;
+    } else if(strcmp(instType, "SCF") == 0) {
+        return IST_SCF;
+    } else if(strcmp(instType, "NEG") == 0) {
+        return IST_NEG;
     } else {
         return IST_ERR;
     }
