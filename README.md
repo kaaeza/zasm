@@ -92,9 +92,14 @@ zasm -h | zasm --help
 | `CP`        | Compare a value with register A |
 | `INC`       | Increment a register or memory value by 1 |
 | `DEC`       | Decrement a register or memory value by 1 |
+| `ADC`       | Add value and Carry flag to register A |
+| `SBC`       | Subtract value and Carry flag from register A |
 | `JP`        | Jump to an absolute address (can be conditional) |
 | `JR`        | Jump relative to the current PC (can be conditional) |
 | `DJNZ`      | Decrement register B and jump if not zero |
 | `HALT`      | Stop program execution |
 | `NOP`       | No operation (does nothing) |
+| `CCF`       | Complement the Carry flag (invert it) |
+| `SCF`       | Set the Carry flag (CY = 1) |
+| `NEG`       | Negate the value in register A (A = 0 - A) |
 | `ERR`       | Represents an unrecognized instruction or syntax error |
