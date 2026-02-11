@@ -4,53 +4,46 @@
 #include "utils.h"
 #include "lexer.h"
 
+typedef struct {
+    const char *name;
+    InstructionType type;
+} InstMap;
+
+static const InstMap inst_map[] = {
+    {"LD",   IST_LD},
+    {"ADD",  IST_ADD},
+    {"HALT", IST_HALT},
+    {"NOP",  IST_NOP},
+    {"INC",  IST_INC},
+    {"DEC",  IST_DEC},
+    {"SUB",  IST_SUB},
+    {"ADC",  IST_ADC},
+    {"SBC",  IST_SBC},
+    {"AND",  IST_AND},
+    {"XOR",  IST_XOR},
+    {"OR",   IST_OR},
+    {"DJNZ", IST_DJNZ},
+    {"JP",   IST_JP},
+    {"JR",   IST_JR},
+    {"CP",   IST_CP},
+    {"CCF",  IST_CCF},
+    {"SCF",  IST_SCF},
+    {"NEG",  IST_NEG}
+};
+
 InstructionType handleInstType(char *instType) {
     size_t len = strlen(instType);
     if(len > 0 && instType[len-1] == '\n') {
         instType[len-1] = '\0';
     }
 
-    if (strcmp(instType, "LD") == 0) {
-        return IST_LD;
-    } else if (strcmp(instType, "ADD") == 0) {
-        return IST_ADD;
-    } else if (strcmp(instType, "HALT") == 0) {
-        return IST_HALT;
-    } else if (strcmp(instType, "NOP") == 0) {
-        return IST_NOP;
-    } else if(strcmp(instType, "INC") == 0) {
-        return IST_INC;
-    } else if(strcmp(instType, "DEC") == 0) {
-        return IST_DEC;
-    } else if(strcmp(instType, "SUB") == 0) {
-        return IST_SUB;
-    } else if(strcmp(instType, "ADC") == 0) {
-        return IST_ADC;
-    } else if(strcmp(instType, "SBC") == 0) {
-        return IST_SBC;
-    } else if(strcmp(instType, "AND") == 0) {
-        return IST_AND;
-    } else if(strcmp(instType, "XOR") == 0) {
-        return IST_XOR;
-    } else if(strcmp(instType, "OR") == 0) {
-        return IST_OR;
-    } else if(strcmp(instType, "DJNZ") == 0) {
-        return IST_DJNZ;
-    } else if(strcmp(instType, "JP") == 0) {
-        return IST_JP;
-    } else if(strcmp(instType, "JR") == 0) {
-        return IST_JR;
-    } else if(strcmp(instType, "CP") == 0) {
-        return IST_CP;
-    } else if(strcmp(instType, "CCF") == 0) {
-        return IST_CCF;
-    } else if(strcmp(instType, "SCF") == 0) {
-        return IST_SCF;
-    } else if(strcmp(instType, "NEG") == 0) {
-        return IST_NEG;
-    } else {
-        return IST_ERR;
+    for(size_t i = 0; i < sizeof(inst_map) / sizeof(inst_map[0]); i++) {
+        if(strcmp(instType, inst_map[i].name) == 0) {
+            return inst_map[i].type;
+        }
     }
+
+    return IST_ERR;
 }
 
 Instruction parseLine(char line[], uint16_t IC) {
