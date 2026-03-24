@@ -1,9 +1,9 @@
-#ifndef EMULATOR_H
-#define EMULATOR_H
+#ifndef EMULATOR_DEV_H
+#define EMULATOR_DEV_H
 
-#include "utils.h"
-#include "z80.h"
-#include "lexer.h"
+#include "utils_Dev.h"
+#include "z80_Dev.h"
+#include "lexer_Dev.h"
 
 /// @brief Executes an array of instructions
 /// @param instructions Array of instructions to execute
@@ -18,4 +18,9 @@ uint8_t *getReg8Bit(const char reg);
 /// @param arg The argument string (register, immediate hex value, or memory address).
 /// @return Pointer to the 8-bit value corresponding to the argument, or NULL if invalid.
 uint8_t *handleArg(char *arg);
+
+/// @brief Returns a pointer to a 16-bit register of the cpu
+/// @param reg String representing the register (For now only "SP")
+/// @return Pointer to the 16-bit correspondig register
+uint16_t *getReg16Bit(const char *reg);
 #endif

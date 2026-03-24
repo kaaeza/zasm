@@ -3,10 +3,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "z80.h"
-#include "utils.h"
-#include "lexer.h"
-#include "emulator.h"
+#include "z80_Dev.h"
+#include "utils_Dev.h"
+#include "lexer_Dev.h"
+#include "emulator_Dev.h"
 
 uint8_t *getReg8Bit(const char reg) {
     switch (reg) {
@@ -29,19 +29,32 @@ uint8_t *getReg8Bit(const char reg) {
     return NULL;
 }
 
+uint16_t *getReg16Bit(const char *reg) {
+    if(strcmp(reg, "SP") == 0) return &cpu.SP;
+    if(strcmp(reg, "IX") == 0) return &cpu.IX;
+    if(strcmp(reg, "IY") == 0) return &cpu.IY;
+
+    return NULL;
+}
+
 uint8_t *handleArg(char *arg) {
     static uint8_t immNumber = 0; // immediate number
-    uint8_t *a;
+    uint8_t *reg8bit;
+    uint16_t *reg16bit;
     if(arg[0] == '(') {
         stripParenthesis(arg);
 
         if(ends_with(arg, 'h')) {
             uint8_t val = (uint8_t) strtol(arg, NULL, 16);
             return &memory[val];
+        } else if (strlen(arg) > 1) { 
+            reg16bit = getReg16Bit(arg);
+            
+            return &memory[*reg16bit];
         } else {
-            a = getReg8Bit(arg[0]);
+            reg8bit = getReg8Bit(arg[0]);
 
-            return &memory[*a];
+            return &memory[*reg8bit];
         }
     }
 
@@ -93,6 +106,8 @@ void execFile(Instruction instructions[]) {
 
         case IST_INC: {
             src = handleArg(currentInstruction.arg1);
+
+
             cpu.F.HF = (((*src) & 0x0F) + 1 ) > 0x0F;
             cpu.F.PF = ((*src) == 0x7F);
 
@@ -107,6 +122,7 @@ void execFile(Instruction instructions[]) {
 
         case IST_DEC: {
             src = handleArg(currentInstruction.arg1);
+
             cpu.F.HF = (((*src) & 0x0F) + 1 ) > 0x0F;
             cpu.F.PF = ((*src) == 0x7F);
             (*src)--;
@@ -121,11 +137,6 @@ void execFile(Instruction instructions[]) {
         case IST_ADD: {
             dest = handleArg(currentInstruction.arg1);
             src = handleArg(currentInstruction.arg2);
-
-            if(dest != &cpu.A) {
-                fprintf(stderr, "Line %04X: [ERROR] ADD first argument must be A", cpu.PC);
-                exit(1);
-            }
 
             uint16_t result = (uint16_t)cpu.A + (uint16_t)(*src);
 
@@ -145,6 +156,7 @@ void execFile(Instruction instructions[]) {
 
         case IST_SUB: {
             src = handleArg(currentInstruction.arg1);
+
             uint16_t result = (uint16_t)cpu.A + (uint16_t)(*src);
 
             cpu.F.CF = (cpu.A < *src);
@@ -162,11 +174,6 @@ void execFile(Instruction instructions[]) {
         case IST_ADC: {
             dest = handleArg(currentInstruction.arg1);
             src = handleArg(currentInstruction.arg2);
-
-            if(dest != &cpu.A) {
-                fprintf(stderr, "Line %04X: [ERROR] ADC first argument must be A", cpu.PC);
-                exit(1);
-            }
 
             cpu.F.HF = ((cpu.A & 0x0F) + (*src & 0x0F) + cpu.F.CF) > 0x0F;
             cpu.F.PF = (~(cpu.A ^ *src) & (cpu.A ^ (cpu.A + *src + cpu.F.CF)) & 0x80) != 0;
@@ -186,11 +193,6 @@ void execFile(Instruction instructions[]) {
         case IST_SBC: {
             dest = handleArg(currentInstruction.arg1);
             src = handleArg(currentInstruction.arg2);
-
-            if(dest != &cpu.A) {
-                fprintf(stderr, "Line %04X: [ERROR] ADC first argument must be A", cpu.PC);
-                exit(1);
-            }
 
             cpu.F.HF = ( (cpu.A & 0x0F) < ((*src & 0x0F) + cpu.F.CF) );
             cpu.F.PF = ((cpu.A ^ *src) & (cpu.A ^ (cpu.A - *src - cpu.F.CF)) & 0x80) != 0;
@@ -224,6 +226,7 @@ void execFile(Instruction instructions[]) {
 
         case IST_AND: {
             src = handleArg(currentInstruction.arg1);
+
             cpu.A &= *src;
 
             // FLAGS
@@ -239,6 +242,7 @@ void execFile(Instruction instructions[]) {
 
         case IST_OR: {
             src = handleArg(currentInstruction.arg1);
+
             cpu.A |= *src;
 
             // FLAGS
@@ -254,6 +258,7 @@ void execFile(Instruction instructions[]) {
 
         case IST_XOR: {
             src = handleArg(currentInstruction.arg1);
+
             cpu.A ^= *src;
 
             // FLAGS

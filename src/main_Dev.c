@@ -7,10 +7,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "emulator.h"
-#include "z80.h"
-#include "utils.h"
-#include "lexer.h"
+#include "emulator_Dev.h"
+#include "z80_Dev.h"
+#include "utils_Dev.h"
+#include "lexer_Dev.h"
 
 // defined in z80.h to use in every file by including it
 uint8_t memory[0x10000];

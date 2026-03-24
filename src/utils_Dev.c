@@ -11,7 +11,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "utils.h"
+#include "utils_Dev.h"
 
 char *getSaveFilePath() {
     static char path[4096];
@@ -75,8 +75,8 @@ bool loadState(uint8_t *m, z80 *c) {
     char *savePath = getSaveFilePath();
     FILE *file = fopen(savePath, "rb");
     if(!file) {
-        perror("Error while opening save file");
-        return false;
+        saveState(m, c);
+        loadState(m, c);
     }
 
     fread(m, sizeof(uint8_t), 0x10000, file);

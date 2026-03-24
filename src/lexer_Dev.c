@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "utils.h"
-#include "lexer.h"
+#include "utils_Dev.h"
+#include "lexer_Dev.h"
 
 typedef struct {
     const char *name;
@@ -78,7 +78,7 @@ Instruction parseLine(char line[], uint16_t IC) {
         }
         i++;
     }
-
+    
     return instruction;
 }
 

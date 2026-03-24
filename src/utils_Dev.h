@@ -1,13 +1,13 @@
-/// @file utils.h
+/// @file utils_Dev.h
 /// @brief Declarations for emulator utility functions
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILS_DEV_H
+#define UTILS_DEV_H
 
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
-#include "z80.h"
-#include "lexer.h"
+#include "z80_Dev.h"
+#include "lexer_Dev.h"
 
 /// @brief Saves the state of the memory and the cpu in a binary file
 /// @param memory The memory to save
